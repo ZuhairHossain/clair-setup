@@ -1,0 +1,15 @@
+# This is the corrected config for combo mode
+http_listen_addr: :6063
+log_level: info
+
+indexer:
+  connstring: "postgresql://clair:clairpassword@postgres:5432/clair6000?sslmode=disable"
+  migrations: true
+
+matcher:
+  connstring: "postgresql://clair:clairpassword@postgres:5432/clair6000?sslmode=disable"
+  migrations: true
+
+notifier:
+  connstring: "postgresql://clair:clairpassword@postgres:5432/clair6000?sslmode=disable"
+  migrations: true
