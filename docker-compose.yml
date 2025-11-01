@@ -1,0 +1,46 @@
+# This is the complete and final docker-compose.yml
+services:
+  clair:
+    image: quay.io/projectquay/clair:4.7.3
+    container_name: clair_scanner
+    ports:
+      - "6063:6063"
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: -conf /config/config.yaml -mode combo
+    volumes:
+      # Mount the config file (read-only)
+      - ./clair-config:/config:ro
+      # Add a dedicated, writable /tmp volume for the scanner
+      - clair-tmp:/tmp
+    networks:
+      - clair-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: clair_db
+    environment:
+      - POSTGRES_USER=clair
+      - POSTGRES_PASSWORD=clairpassword
+      - POSTGRES_DB=clair6000
+    volumes:
+      - clair_postgres_data:/var/lib/postgresql/data
+    networks:
+      - clair-network
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clair -d clair6000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# This top-level block defines all the volumes we use
+volumes:
+  clair_postgres_data:
+  clair-tmp: {} # This line defines the new /tmp volume
+  
+networks:
+  clair-network:
+    driver: bridge
