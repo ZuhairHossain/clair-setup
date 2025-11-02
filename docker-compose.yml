@@ -1,10 +1,13 @@
-# This is the complete and final docker-compose.yml
+# This is the complete docker-compose.yml using a local bind mount for /tmp
 services:
   clair:
     image: quay.io/projectquay/clair:4.7.3
     container_name: clair_scanner
     ports:
+      # Main API port for scanning
       - "6063:6063"
+      # Introspection port for health checks
+      - "6060:6060"
     restart: always
     depends_on:
       postgres:
@@ -13,8 +16,8 @@ services:
     volumes:
       # Mount the config file (read-only)
       - ./clair-config:/config:ro
-      # Add a dedicated, writable /tmp volume for the scanner
-      - clair-tmp:/tmp
+      # Mount the local-tmp directory as the container's /tmp
+      - ./local-tmp:/tmp
     networks:
       - clair-network
 
@@ -26,6 +29,7 @@ services:
       - POSTGRES_PASSWORD=clairpassword
       - POSTGRES_DB=clair6000
     volumes:
+      # Use a named volume for persistent database data
       - clair_postgres_data:/var/lib/postgresql/data
     networks:
       - clair-network
@@ -36,10 +40,10 @@ services:
       timeout: 5s
       retries: 5
 
-# This top-level block defines all the volumes we use
+# This top-level block defines only the named volumes
 volumes:
   clair_postgres_data:
-  clair-tmp: {} # This line defines the new /tmp volume
+  
   
 networks:
   clair-network:

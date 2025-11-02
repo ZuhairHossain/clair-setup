@@ -1,6 +1,7 @@
 # This is the corrected config for combo mode
 http_listen_addr: :6063
-log_level: info
+introspection_addr: :6060
+log_level: error
 
 indexer:
   connstring: "postgresql://clair:clairpassword@postgres:5432/clair6000?sslmode=disable"
